@@ -1,4 +1,4 @@
-package com.example.mouse.ConnectionUtil.WifiPeerUtil;
+package com.example.mouse.WifiPeerUtil;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,14 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mouse.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class WifiPeerAdapter extends RecyclerView.Adapter {
 
-    ArrayList<Peer> mList;
+    List<Peer> mList;
     Context mContext;
     PeerClickedListener mListener;
 
-    public WifiPeerAdapter(Context context, ArrayList<Peer> list, PeerClickedListener listener) {
+    public WifiPeerAdapter(Context context, List<Peer> list, PeerClickedListener listener) {
         mContext = context;
         mList = list;
         mListener = listener;
@@ -33,7 +34,7 @@ public class WifiPeerAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((PeerViewHolder) holder).bind(mList.get(position), position, mListener);
+        ((PeerViewHolder) holder).bind(mList.get(position), mListener);
     }
 
     @Override

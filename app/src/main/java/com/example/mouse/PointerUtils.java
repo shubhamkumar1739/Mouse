@@ -17,6 +17,8 @@ public class PointerUtils {
     public static final int KEY_RELEASED = 10;
     public static final int TEXT_INPUT = 11;
     public static final int PERFORM_KEY_ACTION = 12;
+    public static final int BROADCAST_MESSAGE = 13;
+    public static final int LOG = 14;
 
     public static long CLICK_DELAY = 300;
     public static long DRAG_START_DELAY = 300;

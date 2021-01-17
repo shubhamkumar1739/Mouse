@@ -15,8 +15,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
-import com.example.mouse.ConnectionUtil.UDPDataReceivedListener;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
+import com.example.mouse.KeyUtils.KeyboardEvent;
+import com.example.mouse.KeyUtils.LogUtil;
 import com.example.mouse.Listeners.ButtonClickListener;
 import com.example.mouse.Listeners.MouseTouchListener;
 import com.example.mouse.Listeners.SwitchListener;
@@ -32,6 +33,15 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
     //keytype declarations
     private int prevLength;
     private boolean isDummy;
+
+    public String getPrevStr() {
+        return prevStr;
+    }
+
+    public void setPrevStr(String prevStr) {
+        this.prevStr = prevStr;
+    }
+
     private String prevStr;
     private String dummyChar = " ";
 
@@ -49,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        udpWrapper = ApplicationContainer.getUDPWrapper(null);
+        udpWrapper = ApplicationContainer.getUDPWrapper(getApplicationContext(), null);
 
         mousePad = findViewById(R.id.mouse);
         editText = findViewById(R.id.inputText);
@@ -100,14 +110,15 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
                 String s = edt.toString();
 
-                if(s.length() == 0) {
-                    String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.BKSP;
-                    udpWrapper.sendData(data.getBytes());
-                    addDummy();
-                    return;
-                }
-
-                getDiff(s, prevStr);
+//                if(s.length() == 0) {
+//                    String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.BKSP;
+//                    udpWrapper.sendData(data.getBytes());
+//                    addDummy();
+//                    return;
+//                }
+//
+//                getDiff(s, prevStr);
+                KeyboardEvent.typeText(s, prevStr, udpWrapper, MainActivity.this);
             }
         });
 
@@ -126,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
         buttonContainer = findViewById(R.id.button_container);
         fnContainer = findViewById(R.id.fn_container);
-        mousePadContainer = findViewById(R.id.mouse_pad_container);
+        mousePadContainer = findViewById(R.id.button_box);
 
         sideDrawer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,11 +147,11 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                     sideDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_left));
                     mousePad.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            5f));
+                            5));
                 } else {
                     fnContainer.setVisibility(View.VISIBLE);
                     sideDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_right));
-                    mousePad.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 3f));
+                    mousePad.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 3));
                 }
                 sideDrawerVisible = !sideDrawerVisible;
             }
@@ -152,9 +163,11 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                 if (upDrawerVisible) {
                     buttonContainer.setVisibility(View.GONE);
                     upDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_down));
+                    mousePadContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 9.0f));
                 } else {
                     buttonContainer.setVisibility(View.VISIBLE);
                     upDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_up));
+                    mousePadContainer.setLayoutParams(new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, 0, 6.0f));
                 }
                 upDrawerVisible = !upDrawerVisible;
             }
@@ -242,6 +255,8 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
     }
 
     public void getDiff(String s, String t) {
+        String logData = System.currentTimeMillis() + "," + PointerUtils.LOG + "," + LogUtil.PREV_CUR_STR + ", \"" + s + "\",\"" + t +"\"";
+        udpWrapper.sendData(logData.getBytes());
         int minLen = Math.min(s.length(), t.length());
         int i;
         int j;
@@ -258,8 +273,8 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
         }
 
         if(i != s.length()) {
-            if (i == 0)
-                i = 1;
+//            if (i == 0)
+//                i = 1;
             String diff = s.substring(i);
 
             char letter = diff.charAt(0);
@@ -280,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                     udpWrapper.sendData(data.getBytes());
                 }
             } else {
-                 String comps[] = diff.split(" ");
+                String comps[] = diff.split(" ");
                 String data;
                 for (int a = 0; a < comps.length; a++) {
                     if (comps.length > 1 && a < comps.length - 1) {
@@ -293,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                     }
                 }
 
-                if (comps.length > 1) {
+                if (s.split(" ").length > 5) {
                     addDummy();
                     return;
                 }
