@@ -4,6 +4,8 @@ import android.os.Handler;
 
 import java.net.DatagramPacket;
 
-public interface UDPDataReceivedListener {
+public interface DataReceivedListener {
     public void onPacketReceived(DatagramPacket bytes, Handler maintThread);
+
+
 }

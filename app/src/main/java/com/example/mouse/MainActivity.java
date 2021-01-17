@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
+import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
 import com.example.mouse.KeyUtils.KeyboardEvent;
 import com.example.mouse.KeyUtils.LogUtil;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     private ImageView mousePad;
     private Button keyboardButton;
-    private UDPWrapper udpWrapper;
+    private NetworkManager networkManager;
     private EditText editText;
 
     //keytype declarations
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        udpWrapper = ApplicationContainer.getUDPWrapper(getApplicationContext(), null);
+        networkManager = ApplicationContainer.getNetworkManager(getApplicationContext(), null);
 
         mousePad = findViewById(R.id.mouse);
         editText = findViewById(R.id.inputText);
@@ -118,13 +119,13 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 //                }
 //
 //                getDiff(s, prevStr);
-                KeyboardEvent.typeText(s, prevStr, udpWrapper, MainActivity.this);
+                KeyboardEvent.typeText(s, prevStr, networkManager, MainActivity.this);
             }
         });
 
         addDummy();
 
-        MouseTouchListener listener = new MouseTouchListener(udpWrapper);
+        MouseTouchListener listener = new MouseTouchListener(networkManager);
         mousePad.setOnTouchListener(listener);
     }
 
@@ -176,74 +177,74 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     private void initSwitches() {
         winSwitch = findViewById(R.id.win_switch);
-        winSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.WIN));
+        winSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.WIN));
         dragSwitch = findViewById(R.id.drag_switch);
         dragSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
                     String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_PRESS;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes());
                 } else {
                     String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_RELEASE;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes());
                 }
             }
         });
         shiftSwitch = findViewById(R.id.shift_switch);
-        shiftSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.SHIFT));
+        shiftSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.SHIFT));
         altSwitch = findViewById(R.id.alt_switch);
-        altSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.ALT));
+        altSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.ALT));
         ctrlSwitch = findViewById(R.id.ctrl_switch);
-        ctrlSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.CTRL));
+        ctrlSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.CTRL));
         fnSwitch = findViewById(R.id.fn_switch);
-        fnSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.FN));
+        fnSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.FN));
     }
 
     private void initButtons() {
         tabButton = findViewById(R.id.tab_button);
-        tabButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.TAB));
+        tabButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.TAB));
         upButton = findViewById(R.id.up_button);
-        upButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.UP));
+        upButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.UP));
         downButton = findViewById(R.id.down_button);
-        downButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.DOWN));
+        downButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DOWN));
         leftButton = findViewById(R.id.left_button);
-        leftButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.LEFT));
+        leftButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.LEFT));
         rightButton = findViewById(R.id.right_button);
-        rightButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.RIGHT));
+        rightButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.RIGHT));
         enterButton = findViewById(R.id.enter_button);
-        enterButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.ENTER));
+        enterButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ENTER));
         escapeButton = findViewById(R.id.esc_button);
-        escapeButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.ESC));
+        escapeButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ESC));
         deleteButton = findViewById(R.id.delete_button);
-        deleteButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.DELETE));
+        deleteButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DELETE));
         insertButton = findViewById(R.id.insert_button);
-        insertButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.INSERT));
+        insertButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.INSERT));
 
         f1Button = findViewById(R.id.f1_button);
-        f1Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F1));
+        f1Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F1));
         f2Button = findViewById(R.id.f2_button);
-        f2Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F2));
+        f2Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F2));
         f3Button = findViewById(R.id.f3_button);
-        f3Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F3));
+        f3Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F3));
         f4Button = findViewById(R.id.f4_button);
-        f4Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F4));
+        f4Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F4));
         f5Button = findViewById(R.id.f5_button);
-        f5Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F5));
+        f5Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F5));
         f6Button = findViewById(R.id.f6_button);
-        f6Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F6));
+        f6Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F6));
         f7Button = findViewById(R.id.f7_button);
-        f7Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F7));
+        f7Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F7));
         f8Button = findViewById(R.id.f8_button);
-        f8Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F8));
+        f8Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F8));
         f9Button = findViewById(R.id.f9_button);
-        f9Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F9));
+        f9Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F9));
         f10Button = findViewById(R.id.f10_button);
-        f10Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F10));
+        f10Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F10));
         f11Button = findViewById(R.id.f11_button);
-        f11Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F11));
+        f11Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F11));
         f12Button = findViewById(R.id.f12_button);
-        f12Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F12));
+        f12Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F12));
     }
 
     public void addDummy() {
@@ -256,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     public void getDiff(String s, String t) {
         String logData = System.currentTimeMillis() + "," + PointerUtils.LOG + "," + LogUtil.PREV_CUR_STR + ", \"" + s + "\",\"" + t +"\"";
-        udpWrapper.sendData(logData.getBytes());
+        networkManager.sendData(logData.getBytes());
         int minLen = Math.min(s.length(), t.length());
         int i;
         int j;
@@ -268,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
         while(j < t.length() ) {
             String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," +  KeyboardEvent.BKSP;
-            udpWrapper.sendData(data.getBytes());
+            networkManager.sendData(data.getBytes());
             j++;
         }
 
@@ -286,13 +287,13 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                 }
                 if(letter >= 'A' && letter <= 'Z') {
                     data = System.currentTimeMillis() + "," + PointerUtils.KEY_PRESSED + "," + KeyboardEvent.SHIFT;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes());
                 }
                 data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + ","  + (int)capLetter;
-               udpWrapper.sendData(data.getBytes());
+               networkManager.sendData(data.getBytes());
                 if(letter >= 'A' && letter <= 'Z') {
                     data = System.currentTimeMillis() + "," + PointerUtils.KEY_RELEASED + "," + KeyboardEvent.SHIFT;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes());
                 }
             } else {
                 String comps[] = diff.split(" ");
@@ -300,11 +301,11 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
                 for (int a = 0; a < comps.length; a++) {
                     if (comps.length > 1 && a < comps.length - 1) {
                         data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.SPACE;
-                        udpWrapper.sendData(data.getBytes());
+                        networkManager.sendData(data.getBytes());
                     }
                     data = System.currentTimeMillis() + "," + PointerUtils.TEXT_INPUT + "," + comps[a];
                     if (!comps[a].equals("")) {
-                        udpWrapper.sendData(data.getBytes());
+                        networkManager.sendData(data.getBytes());
                     }
                 }
 
@@ -315,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
                 if (diff.length() > 0 && diff.charAt(diff.length() - 1) == ' ') {
                     data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.SPACE;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes());
                     addDummy();
                     return;
                 }

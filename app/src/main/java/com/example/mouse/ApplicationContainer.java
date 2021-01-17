@@ -3,16 +3,17 @@ package com.example.mouse;
 import android.app.Application;
 import android.content.Context;
 
-import com.example.mouse.ConnectionUtil.UDPDataReceivedListener;
+import com.example.mouse.ConnectionUtil.DataReceivedListener;
+import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
 
 public class ApplicationContainer extends Application {
-    public static UDPWrapper mUDPWrapper;
+    public static NetworkManager networkManager;
 
-    public static UDPWrapper getUDPWrapper(Context context, UDPDataReceivedListener listener) {
-        if(mUDPWrapper == null) {
-            mUDPWrapper = new UDPWrapper(context,listener);
+    public static NetworkManager getNetworkManager(Context context, DataReceivedListener listener) {
+        if(networkManager == null) {
+            networkManager = new UDPWrapper(context,listener);
         }
-        return mUDPWrapper;
+        return networkManager;
     }
 }

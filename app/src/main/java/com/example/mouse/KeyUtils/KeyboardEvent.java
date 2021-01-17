@@ -2,6 +2,7 @@ package com.example.mouse.KeyUtils;
 
 import android.content.Context;
 
+import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
 import com.example.mouse.MainActivity;
 import com.example.mouse.PointerUtils;
@@ -41,7 +42,7 @@ public class KeyboardEvent {
     public static final int FN = 133;
     public static final int CAPS = 134;
 
-    public static List typeText(String s, String t, UDPWrapper udpWrapper, MainActivity activity) {
+    public static List typeText(String s, String t, NetworkManager networkManager, MainActivity activity) {
         List list = new ArrayList();
 
         if(s.length() == 0) {
@@ -58,20 +59,20 @@ public class KeyboardEvent {
 
         if(j < t.length() ) {
             String data = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.BKSP, t.length() - j);
-            udpWrapper.sendData(data.getBytes());
+            networkManager.sendData(data.getBytes());
             list.add(t.length() - j + " backspaces");
         }
 
         String diff = s.substring(i);
         String data = CommandUtil.getTextInputCommand(diff);
-        udpWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes());
 
         activity.setPrevStr(s);
 
         list.add(diff);
 
         String logData = System.currentTimeMillis() + "," + PointerUtils.LOG + "," + LogUtil.PREV_CUR_STR  + "," + "\"" + s + "\",\"" + t + "\",\"" + list.toString() + "\"";
-        udpWrapper.sendData(logData.getBytes());
+        networkManager.sendData(logData.getBytes());
 
         return list;
     }
