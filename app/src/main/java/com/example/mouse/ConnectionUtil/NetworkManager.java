@@ -25,10 +25,17 @@ public abstract class NetworkManager {
 
     public static final int BROADCASTER_PORT = 12235;
     public static final int BROADCAST_RECEIVER_PORT = 12236;
+
+    public static final int TCP_OPTION = 0;
+    public static final int UDP_OPTION = 1;
+
     DataReceivedListener mListener;
 
     public boolean isConnected = false;
     public boolean isReceiverRunning = false;
+
+    UDPWrapper udpWrapper;
+    TCPWrapper tcpWrapper;
 
     public static String IP_ADDRESS;
 
@@ -38,6 +45,15 @@ public abstract class NetworkManager {
     Handler mainThread;
 
     Context mContext;
+
+    public NetworkManager() {};
+
+    public NetworkManager(Context context, DataReceivedListener listener) {
+        mContext = context;
+        mListener = listener;
+        tcpWrapper = new TCPWrapper(mContext, mListener);
+        udpWrapper = new UDPWrapper(mContext, mListener);
+    }
 
     List<InetAddress> listAllBroadcastAddresses() throws SocketException {
         List<InetAddress> broadcastList = new ArrayList<>();
@@ -111,7 +127,7 @@ public abstract class NetworkManager {
                         for(InetAddress address : addresses) {
                             if(address == null)
                                 continue;
-                            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, PORT_NUMBER);
+                            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, BROADCASTER_PORT);
                             try {
                                 broadcasterSocket.send(packet);
                                 //Log.d(LOG_CLASS, "sent broadcast to : "+ address.getHostAddress());
@@ -148,7 +164,18 @@ public abstract class NetworkManager {
         isConnected = true;
     }
 
-    public abstract void sendData(byte[] data);
+    public void sendData(byte[] data, int option) {
+        if(option == UDP_OPTION) {
+            udpWrapper.sendData(data);
+        } else if(option == TCP_OPTION) {
+            tcpWrapper.sendData(data);
+        }
+    }
+
+    //TODO : Remove this function
+    public void sendData(byte[] data) {
+        udpWrapper.sendData(data);
+    }
 
 }
 
