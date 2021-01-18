@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
     private EditText editText;
 
     //keytype declarations
-    private int prevLength;
     private boolean isDummy;
 
     public String getPrevStr() {
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
         mousePad = findViewById(R.id.mouse);
         editText = findViewById(R.id.inputText);
 
-        prevLength = 1;
         prevStr = dummyChar;
 
         initButtons();
@@ -111,14 +109,6 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
                 String s = edt.toString();
 
-//                if(s.length() == 0) {
-//                    String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.BKSP;
-//                    udpWrapper.sendData(data.getBytes());
-//                    addDummy();
-//                    return;
-//                }
-//
-//                getDiff(s, prevStr);
                 KeyboardEvent.typeText(s, prevStr, networkManager, MainActivity.this);
             }
         });
@@ -249,94 +239,8 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     public void addDummy() {
         isDummy = true;
-        prevLength = 1;
         prevStr = dummyChar;
         editText.setText("");
         editText.append(dummyChar);
-    }
-
-    public void getDiff(String s, String t) {
-        String logData = System.currentTimeMillis() + "," + PointerUtils.LOG + "," + LogUtil.PREV_CUR_STR + ", \"" + s + "\",\"" + t +"\"";
-        networkManager.sendData(logData.getBytes());
-        int minLen = Math.min(s.length(), t.length());
-        int i;
-        int j;
-         for(i = 0, j = 0; i < minLen; i++, j++) {
-             if (s.charAt(i) != t.charAt(j)) {
-                 break;
-             }
-         }
-
-        while(j < t.length() ) {
-            String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," +  KeyboardEvent.BKSP;
-            networkManager.sendData(data.getBytes());
-            j++;
-        }
-
-        if(i != s.length()) {
-//            if (i == 0)
-//                i = 1;
-            String diff = s.substring(i);
-
-            char letter = diff.charAt(0);
-            if (diff.length() == 1 && isLetterOrDigit(letter)) {
-                String data;
-                char capLetter = letter;
-                if ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z')) {
-                    capLetter = Character.toUpperCase(letter);
-                }
-                if(letter >= 'A' && letter <= 'Z') {
-                    data = System.currentTimeMillis() + "," + PointerUtils.KEY_PRESSED + "," + KeyboardEvent.SHIFT;
-                    networkManager.sendData(data.getBytes());
-                }
-                data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + ","  + (int)capLetter;
-               networkManager.sendData(data.getBytes());
-                if(letter >= 'A' && letter <= 'Z') {
-                    data = System.currentTimeMillis() + "," + PointerUtils.KEY_RELEASED + "," + KeyboardEvent.SHIFT;
-                    networkManager.sendData(data.getBytes());
-                }
-            } else {
-                String comps[] = diff.split(" ");
-                String data;
-                for (int a = 0; a < comps.length; a++) {
-                    if (comps.length > 1 && a < comps.length - 1) {
-                        data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.SPACE;
-                        networkManager.sendData(data.getBytes());
-                    }
-                    data = System.currentTimeMillis() + "," + PointerUtils.TEXT_INPUT + "," + comps[a];
-                    if (!comps[a].equals("")) {
-                        networkManager.sendData(data.getBytes());
-                    }
-                }
-
-                if (s.split(" ").length > 5) {
-                    addDummy();
-                    return;
-                }
-
-                if (diff.length() > 0 && diff.charAt(diff.length() - 1) == ' ') {
-                    data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.SPACE;
-                    networkManager.sendData(data.getBytes());
-                    addDummy();
-                    return;
-                }
-            }
-        } else {
-            if(s.length() == 0) {
-                addDummy();
-            }
-        }
-        prevLength = s.length();
-        prevStr = s;
-    }
-
-    private boolean isLetterOrDigit(char letter) {
-        if(letter >= '0' && letter <= '9')
-            return true;
-        if(letter >= 'A' && letter <= 'Z')
-            return true;
-        if(letter >= 'a' && letter <= 'z')
-            return true;
-        return false;
     }
 }
