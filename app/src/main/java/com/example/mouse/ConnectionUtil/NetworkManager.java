@@ -17,10 +17,11 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.example.mouse.ConnectionUtil.UDPWrapper.PORT_NUMBER;
 
-public abstract class NetworkManager {
+public class NetworkManager {
     static final int BUFFER_SIZE = 16000;
 
     public static final int BROADCASTER_PORT = 12235;
@@ -149,7 +150,14 @@ public abstract class NetworkManager {
     }
 
     public void setmIPAddress(String ip) {
-        IP_ADDRESS = ip;
+        Thread t = new Thread() {
+            public void run() {
+                IP_ADDRESS = ip;
+                tcpWrapper.initSender();
+                udpWrapper.initSender();
+            }
+        };
+        t.start();
     }
 
     public void setMainThread(Handler h) {
@@ -172,9 +180,11 @@ public abstract class NetworkManager {
         }
     }
 
-    //TODO : Remove this function
-    public void sendData(byte[] data) {
-        udpWrapper.sendData(data);
+    public void sendData(ArrayList<byte[]> byteList, int option) {
+        if(option == TCP_OPTION)
+            tcpWrapper.sendData(byteList);
+        else if(option == UDP_OPTION)
+            udpWrapper.sendData(byteList);
     }
 
 }

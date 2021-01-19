@@ -174,10 +174,10 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
                     String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_PRESS;
-                    networkManager.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
                 } else {
                     String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_RELEASE;
-                    networkManager.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
                 }
             }
         });

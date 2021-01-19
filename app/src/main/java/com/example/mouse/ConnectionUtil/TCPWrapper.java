@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TCPWrapper extends NetworkManager{
 
@@ -16,37 +18,58 @@ public class TCPWrapper extends NetworkManager{
 
     static Socket socket;
     OutputStream outputStream;
-    InputStream inputStream;
     PrintWriter printWriter;
-    BufferedReader bufferedReader;
+
+    ConcurrentLinkedQueue<byte[]> queue;
+    Thread consumer;
 
     public TCPWrapper(Context context, DataReceivedListener listener) {
         mListener = listener;
+        mContext = context;
+        queue = new ConcurrentLinkedQueue<>();
+        consumer = new Thread() {
+            public void run() {
+                while (true) {
+                    byte[] bytes = queue.poll();
+                    if(bytes == null)
+                        continue;
+                    String data = new String(bytes);
+                    printWriter.println(data);
+                    printWriter.flush();
+                }
+            }
+        };
+        consumer.start();
     }
 
     public void initSender() {
         try {
+            if(socket != null) {
+                closeSender();
+            }
             socket = new Socket(IP_ADDRESS, PORT_NUMBER);
-
             outputStream = socket.getOutputStream();
             printWriter = new PrintWriter(outputStream);
-
-            inputStream = socket.getInputStream();
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void sendData(byte[] bytes) {
-        String data = new String(bytes);
-        Thread t = new Thread() {
-            public void run() {
-                if(socket == null)
-                    initSender();
-                printWriter.println(data);
-            }
-        };
-        t.start();
+        queue.add(bytes);
+    }
+
+    public void sendData(ArrayList<byte[]> bytes) {
+        queue.addAll(bytes);
+    }
+
+    public void closeSender() {
+        try {
+            printWriter.close();
+            outputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

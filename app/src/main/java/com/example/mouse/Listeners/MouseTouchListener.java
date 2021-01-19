@@ -69,22 +69,22 @@ public class MouseTouchListener implements View.OnTouchListener {
 
     private void sendRightClickPacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.MOUSE_RIGHT_CLICK;
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     private void sendReleasePacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_RELEASE;
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     private void sendPressPacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_PRESS;
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     public void sendClickPacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.MOUSE_CLICK;
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     private void sendVelocityPacket(float xVelocity, float yVelocity) {
@@ -96,7 +96,7 @@ public class MouseTouchListener implements View.OnTouchListener {
             data = timestamp + "," + PointerUtils.MOUSE_MOVE + "," + xVelocity + "," + yVelocity + "," + scale;
         else
             data = timestamp + "," + PointerUtils.MOUSE_SCROLL + "," + xVelocity + "," + yVelocity + "," + PointerUtils.SCROLL_TYPE;
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     @Override

@@ -24,6 +24,6 @@ public class SwitchListener implements CompoundButton.OnCheckedChangeListener {
         } else {
             data = System.currentTimeMillis() + "," + PointerUtils.KEY_RELEASED + "," + mask;
         }
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 }

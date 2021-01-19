@@ -12,7 +12,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class UDPWrapper extends NetworkManager{
 
@@ -21,14 +23,41 @@ public class UDPWrapper extends NetworkManager{
     private String LOG_CLASS = "UDPWrapper";
     static DatagramSocket socket;
 
+    ConcurrentLinkedQueue<byte[]> queue;
+    Thread consumer;
+
 
     public UDPWrapper(Context context, DataReceivedListener listener) {
         mListener = listener;
         mContext = context;
+
+        queue = new ConcurrentLinkedQueue<>();
+
+        consumer = new Thread() {
+            public void run() {
+                while (true) {
+                    byte[] data = queue.poll();
+                    if (data == null || socket == null) {
+                        continue;
+                    }
+
+                    try {
+                        DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(IP_ADDRESS), PORT_NUMBER);
+                        socket.send(packet);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        consumer.start();
     }
 
-    private void initSender() {
+    public void initSender() {
         try {
+            if(socket != null) {
+                socket.close();
+            }
             socket = new DatagramSocket(PORT_NUMBER);
         } catch (SocketException e) {
             e.printStackTrace();
@@ -36,19 +65,10 @@ public class UDPWrapper extends NetworkManager{
     }
 
     public void sendData(byte[] data) {
-        if(socket == null) {
-            initSender();
-        }
-        Thread t = new Thread() {
-            public void run() {
-                try{
-                    DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(IP_ADDRESS), PORT_NUMBER);
-                    socket.send(packet);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        t.start();
+        queue.add(data);
+    }
+
+    public void sendData(ArrayList<byte[]> data) {
+        queue.addAll(data);
     }
 }

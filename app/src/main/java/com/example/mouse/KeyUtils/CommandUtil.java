@@ -25,9 +25,4 @@ public class CommandUtil {
         String command = System.currentTimeMillis() + "," +PointerUtils.TEXT_INPUT + ",\"" +text +"\"";
         return command;
     }
-
-    public static String getKeyPhysicalActionCommand(KeyStrokeUtil keyStrokeUtil) {
-        String command = System.currentTimeMillis() + "," + PointerUtils.PHYSICAL_KEY_ACTION + "," + keyStrokeUtil.keyCode + "," + keyStrokeUtil.shift;
-        return command;
-    }
 }

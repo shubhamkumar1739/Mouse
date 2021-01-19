@@ -17,6 +17,6 @@ public class ButtonClickListener implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + mask;
-        networkManager.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 }
