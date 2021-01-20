@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
         addDummy();
 
-        MouseTouchListener listener = new MouseTouchListener(networkManager);
+        MouseTouchListener listener = new MouseTouchListener(networkManager, MainActivity.this);
         mousePad.setOnTouchListener(listener);
     }
 
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     private void initSwitches() {
         winSwitch = findViewById(R.id.win_switch);
-        winSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.WIN));
+        winSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.WIN, MainActivity.this));
         dragSwitch = findViewById(R.id.drag_switch);
         dragSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -182,59 +182,59 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
             }
         });
         shiftSwitch = findViewById(R.id.shift_switch);
-        shiftSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.SHIFT));
+        shiftSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.SHIFT, MainActivity.this));
         altSwitch = findViewById(R.id.alt_switch);
-        altSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.ALT));
+        altSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.ALT, MainActivity.this));
         ctrlSwitch = findViewById(R.id.ctrl_switch);
-        ctrlSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.CTRL));
+        ctrlSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.CTRL, MainActivity.this));
         fnSwitch = findViewById(R.id.fn_switch);
-        fnSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.FN));
+        fnSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.FN, MainActivity.this));
     }
 
     private void initButtons() {
         tabButton = findViewById(R.id.tab_button);
-        tabButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.TAB));
+        tabButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.TAB, MainActivity.this));
         upButton = findViewById(R.id.up_button);
-        upButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.UP));
+        upButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.UP, MainActivity.this));
         downButton = findViewById(R.id.down_button);
-        downButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DOWN));
+        downButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DOWN, MainActivity.this));
         leftButton = findViewById(R.id.left_button);
-        leftButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.LEFT));
+        leftButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.LEFT, MainActivity.this));
         rightButton = findViewById(R.id.right_button);
-        rightButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.RIGHT));
+        rightButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.RIGHT, MainActivity.this));
         enterButton = findViewById(R.id.enter_button);
-        enterButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ENTER));
+        enterButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ENTER, MainActivity.this));
         escapeButton = findViewById(R.id.esc_button);
-        escapeButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ESC));
+        escapeButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ESC, MainActivity.this));
         deleteButton = findViewById(R.id.delete_button);
-        deleteButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DELETE));
+        deleteButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DELETE, MainActivity.this));
         insertButton = findViewById(R.id.insert_button);
-        insertButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.INSERT));
+        insertButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.INSERT, MainActivity.this));
 
         f1Button = findViewById(R.id.f1_button);
-        f1Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F1));
+        f1Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F1, MainActivity.this));
         f2Button = findViewById(R.id.f2_button);
-        f2Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F2));
+        f2Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F2, MainActivity.this));
         f3Button = findViewById(R.id.f3_button);
-        f3Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F3));
+        f3Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F3, MainActivity.this));
         f4Button = findViewById(R.id.f4_button);
-        f4Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F4));
+        f4Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F4, MainActivity.this));
         f5Button = findViewById(R.id.f5_button);
-        f5Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F5));
+        f5Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F5, MainActivity.this));
         f6Button = findViewById(R.id.f6_button);
-        f6Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F6));
+        f6Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F6, MainActivity.this));
         f7Button = findViewById(R.id.f7_button);
-        f7Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F7));
+        f7Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F7, MainActivity.this));
         f8Button = findViewById(R.id.f8_button);
-        f8Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F8));
+        f8Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F8, MainActivity.this));
         f9Button = findViewById(R.id.f9_button);
-        f9Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F9));
+        f9Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F9, MainActivity.this));
         f10Button = findViewById(R.id.f10_button);
-        f10Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F10));
+        f10Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F10, MainActivity.this));
         f11Button = findViewById(R.id.f11_button);
-        f11Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F11));
+        f11Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F11, MainActivity.this));
         f12Button = findViewById(R.id.f12_button);
-        f12Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F12));
+        f12Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F12, MainActivity.this));
     }
 
     public void addDummy() {

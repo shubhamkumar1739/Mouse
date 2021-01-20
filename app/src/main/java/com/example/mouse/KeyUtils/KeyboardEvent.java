@@ -41,6 +41,9 @@ public class KeyboardEvent {
     public static final int CTRL = 132;
     public static final int FN = 133;
 
+
+    private static int MAX_LENGTH = 25;
+
     public static List typeText(String s, String t, NetworkManager networkManager, MainActivity activity) {
         List list = new ArrayList();
 
@@ -70,7 +73,7 @@ public class KeyboardEvent {
         String diff = s.substring(i);
 
         //send new string from diff
-        sendData(diff, networkManager);
+        sendData(diff, networkManager, activity);
 
         activity.setPrevStr(s);
 
@@ -82,7 +85,7 @@ public class KeyboardEvent {
         return list;
     }
 
-    public static void sendData(String data, NetworkManager networkManager) {
+    public static void sendData(String data, NetworkManager networkManager, MainActivity activity) {
         String dataItem;
 
         if(data.length() == 0)
@@ -106,6 +109,10 @@ public class KeyboardEvent {
         if (data.length() > 0 && data.charAt(data.length() - 1) == ' ') {
             dataItem = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.SPACE);
             networkManager.sendData(dataItem.getBytes(), NetworkManager.TCP_OPTION);
+        }
+
+        if(components.length > MAX_LENGTH) {
+            activity.addDummy();
         }
     }
 

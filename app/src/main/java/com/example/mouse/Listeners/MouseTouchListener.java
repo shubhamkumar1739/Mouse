@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
+import com.example.mouse.MainActivity;
 import com.example.mouse.PointerUtils;
 
 public class MouseTouchListener implements View.OnTouchListener {
@@ -18,13 +19,15 @@ public class MouseTouchListener implements View.OnTouchListener {
 
     private long lastDownEvent;
     private boolean isSecondPointerDown;
+    private MainActivity activity;
 
-    public MouseTouchListener(NetworkManager nManager) {
+    public MouseTouchListener(NetworkManager nManager, MainActivity activity) {
         velocityTracker = null;
 
         lastDownEvent = 0;
         isDragEvent = false;
         networkManager = nManager;
+        this.activity = activity;
 
     }
 
@@ -129,6 +132,9 @@ public class MouseTouchListener implements View.OnTouchListener {
                 break;
 
         }
+
+        activity.addDummy();
+
         return true;
     }
 }
