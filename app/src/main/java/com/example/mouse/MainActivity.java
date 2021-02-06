@@ -1,6 +1,7 @@
 package com.example.mouse;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,6 +24,7 @@ import com.example.mouse.Listeners.ButtonClickListener;
 import com.example.mouse.Listeners.MouseTouchListener;
 import com.example.mouse.Listeners.SwitchListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class MainActivity extends AppCompatActivity implements KeyEvent.Callback {
 
@@ -50,10 +52,6 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     private Switch winSwitch, dragSwitch, shiftSwitch, altSwitch, ctrlSwitch, fnSwitch;
 
-    private FloatingActionButton upDrawer, sideDrawer;
-    private View buttonContainer, fnContainer, mousePadContainer;
-    private boolean sideDrawerVisible, upDrawerVisible;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,16 +66,15 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
         initButtons();
         initSwitches();
-        initFabs();
 
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus) {
-                    v.requestFocus();
-                }
-            }
-        });
+//        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if(!hasFocus) {
+//                    v.requestFocus();
+//                }
+//            }
+//        });
 
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,51 +116,6 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
         mousePad.setOnTouchListener(listener);
     }
 
-    private void initFabs() {
-        sideDrawerVisible = true;
-        upDrawerVisible = true;
-
-        upDrawer = findViewById(R.id.up_drawer);
-        sideDrawer = findViewById(R.id.side_drawer);
-
-        buttonContainer = findViewById(R.id.button_container);
-        fnContainer = findViewById(R.id.fn_container);
-        mousePadContainer = findViewById(R.id.button_box);
-
-        sideDrawer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(sideDrawerVisible) {
-                    fnContainer.setVisibility(View.GONE);
-                    sideDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_left));
-                    mousePad.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            5));
-                } else {
-                    fnContainer.setVisibility(View.VISIBLE);
-                    sideDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_right));
-                    mousePad.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 3));
-                }
-                sideDrawerVisible = !sideDrawerVisible;
-            }
-        });
-
-        upDrawer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (upDrawerVisible) {
-                    buttonContainer.setVisibility(View.GONE);
-                    upDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_down));
-                    mousePadContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 9.0f));
-                } else {
-                    buttonContainer.setVisibility(View.VISIBLE);
-                    upDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_up));
-                    mousePadContainer.setLayoutParams(new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, 0, 6.0f));
-                }
-                upDrawerVisible = !upDrawerVisible;
-            }
-        });
-    }
 
     private void initSwitches() {
         winSwitch = findViewById(R.id.win_switch);

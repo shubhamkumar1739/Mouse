@@ -50,7 +50,7 @@ public class KeyboardEvent {
         //if the user just presses backspace
         if(s.length() == 0) {
             String data = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.BKSP);
-            networkManager.sendData(data.getBytes(), NetworkManager.TCP_OPTION);
+            networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
             activity.addDummy();
         }
 
@@ -66,7 +66,7 @@ public class KeyboardEvent {
         //delete unmatching text from previous string
         if(j < t.length() ) {
             String data = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.BKSP, t.length() - j);
-            networkManager.sendData(data.getBytes(), NetworkManager.TCP_OPTION);
+            networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
             list.add(t.length() - j + " backspaces");
         }
 
@@ -91,24 +91,25 @@ public class KeyboardEvent {
         if(data.length() == 0)
             return;
 
+        //splits into individual word tokens
         String components[] = data.split(" ");
 
         for (int i = 0; i < components.length; i++) {
             String str = components[i];
             if (!str.equals("")) {
                 dataItem = CommandUtil.getTextInputCommand(str);
-                networkManager.sendData(dataItem.getBytes(), NetworkManager.TCP_OPTION);
+                networkManager.sendData(dataItem.getBytes(), NetworkManager.UDP_OPTION);
             }
 
             if (i != components.length - 1) {
                 dataItem = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.SPACE);
-                networkManager.sendData(dataItem.getBytes(), NetworkManager.TCP_OPTION);
+                networkManager.sendData(dataItem.getBytes(), NetworkManager.UDP_OPTION);
             }
         }
 
         if (data.length() > 0 && data.charAt(data.length() - 1) == ' ') {
             dataItem = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.SPACE);
-            networkManager.sendData(dataItem.getBytes(), NetworkManager.TCP_OPTION);
+            networkManager.sendData(dataItem.getBytes(), NetworkManager.UDP_OPTION);
         }
 
         if(components.length > MAX_LENGTH) {

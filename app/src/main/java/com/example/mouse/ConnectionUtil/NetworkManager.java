@@ -113,14 +113,6 @@ public class NetworkManager {
             byte[] buffer = data.getBytes();
             broadcasterSocket.setBroadcast(true);
             List<InetAddress> addresses = listAllBroadcastAddresses();
-            String all_addresses = "";
-            for (InetAddress address : addresses) {
-                if(address == null)
-                    continue;
-                String ad = address.getHostAddress();
-                all_addresses += ad + "\n";
-            }
-            Toast.makeText(mContext, all_addresses, Toast.LENGTH_LONG).show();
 
             broadcasterThread = new Thread(){
                 public void run() {

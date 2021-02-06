@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,6 +41,7 @@ public class WifiActivity extends AppCompatActivity {
 
         initRecyclerView();
 
+
         mListener = new DataReceivedListener() {
             @Override
             public void onPacketReceived(DatagramPacket packet, Handler mainThread) {
@@ -48,9 +51,17 @@ public class WifiActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if(!ipMatch(peer, mList)) {
-                            //Toast.makeText(WifiActivity.this, "Packet Received from : " + ip, Toast.LENGTH_SHORT).show();
                             mList.add(peer);
                             adapter.notifyDataSetChanged();
+
+                            if(ApplicationContainer.isFreshStrart) {
+                                ApplicationContainer.isFreshStrart = false;
+                                SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+                                String ipAddress = sp.getString("lastConnectedIP", "");
+                                if (ipAddress.length() > 0 && peer.getmIP_Address().equals(ipAddress)) {
+                                    beginConnection(ipAddress);
+                                }
+                            }
                         }
                     }
                 });
@@ -77,13 +88,20 @@ public class WifiActivity extends AppCompatActivity {
         adapter = new WifiPeerAdapter(this, mList, new PeerClickedListener() {
             @Override
             public void onPeerClicked(Peer peer) {
-                networkManager.setmIPAddress(peer.getmIP_Address());
-                startActivity(new Intent(WifiActivity.this, MainActivity.class));
+                beginConnection(peer.getmIP_Address());
             }
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(manager);
         Log.d(LOG_ACTIVITY, "Recycler view setup successful");
+    }
+
+    private void beginConnection(String ipAddress) {
+        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+        editor.putString("lastConnectedIP", ipAddress);
+        editor.apply();
+        networkManager.setmIPAddress(ipAddress);
+        startActivity(new Intent(WifiActivity.this, MainActivity.class));
     }
 
     @Override
