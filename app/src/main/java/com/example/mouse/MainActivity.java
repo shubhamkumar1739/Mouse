@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -66,15 +67,7 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
         initButtons();
         initSwitches();
-
-//        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if(!hasFocus) {
-//                    v.requestFocus();
-//                }
-//            }
-//        });
+        initToolbar();
 
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +109,25 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
         mousePad.setOnTouchListener(listener);
     }
 
+    private void initToolbar() {
+        String username = getIntent().getStringExtra("username");
+        getSupportActionBar().setTitle(username);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
 
     private void initSwitches() {
         winSwitch = findViewById(R.id.win_switch);

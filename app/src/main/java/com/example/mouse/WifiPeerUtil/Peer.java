@@ -1,5 +1,7 @@
 package com.example.mouse.WifiPeerUtil;
 
+import java.io.Serializable;
+
 public class Peer {
     public String mIP_Address;
     public String mUsername;

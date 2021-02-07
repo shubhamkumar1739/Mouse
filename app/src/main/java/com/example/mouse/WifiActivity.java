@@ -59,7 +59,7 @@ public class WifiActivity extends AppCompatActivity {
                                 SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
                                 String ipAddress = sp.getString("lastConnectedIP", "");
                                 if (ipAddress.length() > 0 && peer.getmIP_Address().equals(ipAddress)) {
-                                    beginConnection(ipAddress);
+                                    beginConnection(peer);
                                 }
                             }
                         }
@@ -88,7 +88,7 @@ public class WifiActivity extends AppCompatActivity {
         adapter = new WifiPeerAdapter(this, mList, new PeerClickedListener() {
             @Override
             public void onPeerClicked(Peer peer) {
-                beginConnection(peer.getmIP_Address());
+                beginConnection(peer);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -96,12 +96,17 @@ public class WifiActivity extends AppCompatActivity {
         Log.d(LOG_ACTIVITY, "Recycler view setup successful");
     }
 
-    private void beginConnection(String ipAddress) {
+    private void beginConnection(Peer peer) {
+        String ipAddress = peer.getmIP_Address();
+        String hostname = peer.getmUsername();
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
         editor.putString("lastConnectedIP", ipAddress);
+        editor.putString("lastConnectedUsername", hostname);
         editor.apply();
         networkManager.setmIPAddress(ipAddress);
-        startActivity(new Intent(WifiActivity.this, MainActivity.class));
+        Intent intent = new Intent(WifiActivity.this, MainActivity.class);
+        intent.putExtra("username", hostname);
+        startActivity(intent);
     }
 
     @Override
