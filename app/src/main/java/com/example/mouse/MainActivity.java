@@ -1,11 +1,13 @@
 package com.example.mouse;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
+import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
 import com.example.mouse.KeyUtils.KeyboardEvent;
 import com.example.mouse.KeyUtils.LogUtil;
@@ -22,16 +25,16 @@ import com.example.mouse.Listeners.ButtonClickListener;
 import com.example.mouse.Listeners.MouseTouchListener;
 import com.example.mouse.Listeners.SwitchListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class MainActivity extends AppCompatActivity implements KeyEvent.Callback {
 
     private ImageView mousePad;
     private Button keyboardButton;
-    private UDPWrapper udpWrapper;
+    private NetworkManager networkManager;
     private EditText editText;
 
     //keytype declarations
-    private int prevLength;
     private boolean isDummy;
 
     public String getPrevStr() {
@@ -50,35 +53,21 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
     private Switch winSwitch, dragSwitch, shiftSwitch, altSwitch, ctrlSwitch, fnSwitch;
 
-    private FloatingActionButton upDrawer, sideDrawer;
-    private View buttonContainer, fnContainer, mousePadContainer;
-    private boolean sideDrawerVisible, upDrawerVisible;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        udpWrapper = ApplicationContainer.getUDPWrapper(getApplicationContext(), null);
+        networkManager = ApplicationContainer.getNetworkManager(getApplicationContext(), null);
 
         mousePad = findViewById(R.id.mouse);
         editText = findViewById(R.id.inputText);
 
-        prevLength = 1;
         prevStr = dummyChar;
 
         initButtons();
         initSwitches();
-        initFabs();
-
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus) {
-                    v.requestFocus();
-                }
-            }
-        });
+        initToolbar();
 
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,232 +99,112 @@ public class MainActivity extends AppCompatActivity implements KeyEvent.Callback
 
                 String s = edt.toString();
 
-//                if(s.length() == 0) {
-//                    String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.BKSP;
-//                    udpWrapper.sendData(data.getBytes());
-//                    addDummy();
-//                    return;
-//                }
-//
-//                getDiff(s, prevStr);
-                KeyboardEvent.typeText(s, prevStr, udpWrapper, MainActivity.this);
+                KeyboardEvent.typeText(s, prevStr, networkManager, MainActivity.this);
             }
         });
 
         addDummy();
 
-        MouseTouchListener listener = new MouseTouchListener(udpWrapper);
+        MouseTouchListener listener = new MouseTouchListener(networkManager, MainActivity.this);
         mousePad.setOnTouchListener(listener);
     }
 
-    private void initFabs() {
-        sideDrawerVisible = true;
-        upDrawerVisible = true;
+    private void initToolbar() {
+        String username = getIntent().getStringExtra("username");
+        getSupportActionBar().setTitle(username);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
-        upDrawer = findViewById(R.id.up_drawer);
-        sideDrawer = findViewById(R.id.side_drawer);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
 
-        buttonContainer = findViewById(R.id.button_container);
-        fnContainer = findViewById(R.id.fn_container);
-        mousePadContainer = findViewById(R.id.button_box);
-
-        sideDrawer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(sideDrawerVisible) {
-                    fnContainer.setVisibility(View.GONE);
-                    sideDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_left));
-                    mousePad.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            5));
-                } else {
-                    fnContainer.setVisibility(View.VISIBLE);
-                    sideDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_right));
-                    mousePad.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 3));
-                }
-                sideDrawerVisible = !sideDrawerVisible;
-            }
-        });
-
-        upDrawer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (upDrawerVisible) {
-                    buttonContainer.setVisibility(View.GONE);
-                    upDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_down));
-                    mousePadContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 9.0f));
-                } else {
-                    buttonContainer.setVisibility(View.VISIBLE);
-                    upDrawer.setImageDrawable(getResources().getDrawable(R.drawable.arrow_up));
-                    mousePadContainer.setLayoutParams(new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, 0, 6.0f));
-                }
-                upDrawerVisible = !upDrawerVisible;
-            }
-        });
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void initSwitches() {
         winSwitch = findViewById(R.id.win_switch);
-        winSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.WIN));
+        winSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.WIN, MainActivity.this));
         dragSwitch = findViewById(R.id.drag_switch);
         dragSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
                     String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_PRESS;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
                 } else {
                     String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_RELEASE;
-                    udpWrapper.sendData(data.getBytes());
+                    networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
                 }
             }
         });
         shiftSwitch = findViewById(R.id.shift_switch);
-        shiftSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.SHIFT));
+        shiftSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.SHIFT, MainActivity.this));
         altSwitch = findViewById(R.id.alt_switch);
-        altSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.ALT));
+        altSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.ALT, MainActivity.this));
         ctrlSwitch = findViewById(R.id.ctrl_switch);
-        ctrlSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.CTRL));
+        ctrlSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.CTRL, MainActivity.this));
         fnSwitch = findViewById(R.id.fn_switch);
-        fnSwitch.setOnCheckedChangeListener(new SwitchListener(udpWrapper, KeyboardEvent.FN));
+        fnSwitch.setOnCheckedChangeListener(new SwitchListener(networkManager, KeyboardEvent.FN, MainActivity.this));
     }
 
     private void initButtons() {
         tabButton = findViewById(R.id.tab_button);
-        tabButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.TAB));
+        tabButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.TAB, MainActivity.this));
         upButton = findViewById(R.id.up_button);
-        upButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.UP));
+        upButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.UP, MainActivity.this));
         downButton = findViewById(R.id.down_button);
-        downButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.DOWN));
+        downButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DOWN, MainActivity.this));
         leftButton = findViewById(R.id.left_button);
-        leftButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.LEFT));
+        leftButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.LEFT, MainActivity.this));
         rightButton = findViewById(R.id.right_button);
-        rightButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.RIGHT));
+        rightButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.RIGHT, MainActivity.this));
         enterButton = findViewById(R.id.enter_button);
-        enterButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.ENTER));
+        enterButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ENTER, MainActivity.this));
         escapeButton = findViewById(R.id.esc_button);
-        escapeButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.ESC));
+        escapeButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.ESC, MainActivity.this));
         deleteButton = findViewById(R.id.delete_button);
-        deleteButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.DELETE));
+        deleteButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.DELETE, MainActivity.this));
         insertButton = findViewById(R.id.insert_button);
-        insertButton.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.INSERT));
+        insertButton.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.INSERT, MainActivity.this));
 
         f1Button = findViewById(R.id.f1_button);
-        f1Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F1));
+        f1Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F1, MainActivity.this));
         f2Button = findViewById(R.id.f2_button);
-        f2Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F2));
+        f2Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F2, MainActivity.this));
         f3Button = findViewById(R.id.f3_button);
-        f3Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F3));
+        f3Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F3, MainActivity.this));
         f4Button = findViewById(R.id.f4_button);
-        f4Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F4));
+        f4Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F4, MainActivity.this));
         f5Button = findViewById(R.id.f5_button);
-        f5Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F5));
+        f5Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F5, MainActivity.this));
         f6Button = findViewById(R.id.f6_button);
-        f6Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F6));
+        f6Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F6, MainActivity.this));
         f7Button = findViewById(R.id.f7_button);
-        f7Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F7));
+        f7Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F7, MainActivity.this));
         f8Button = findViewById(R.id.f8_button);
-        f8Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F8));
+        f8Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F8, MainActivity.this));
         f9Button = findViewById(R.id.f9_button);
-        f9Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F9));
+        f9Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F9, MainActivity.this));
         f10Button = findViewById(R.id.f10_button);
-        f10Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F10));
+        f10Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F10, MainActivity.this));
         f11Button = findViewById(R.id.f11_button);
-        f11Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F11));
+        f11Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F11, MainActivity.this));
         f12Button = findViewById(R.id.f12_button);
-        f12Button.setOnClickListener(new ButtonClickListener(udpWrapper, KeyboardEvent.F12));
+        f12Button.setOnClickListener(new ButtonClickListener(networkManager, KeyboardEvent.F12, MainActivity.this));
     }
 
     public void addDummy() {
         isDummy = true;
-        prevLength = 1;
         prevStr = dummyChar;
         editText.setText("");
         editText.append(dummyChar);
-    }
-
-    public void getDiff(String s, String t) {
-        String logData = System.currentTimeMillis() + "," + PointerUtils.LOG + "," + LogUtil.PREV_CUR_STR + ", \"" + s + "\",\"" + t +"\"";
-        udpWrapper.sendData(logData.getBytes());
-        int minLen = Math.min(s.length(), t.length());
-        int i;
-        int j;
-         for(i = 0, j = 0; i < minLen; i++, j++) {
-             if (s.charAt(i) != t.charAt(j)) {
-                 break;
-             }
-         }
-
-        while(j < t.length() ) {
-            String data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," +  KeyboardEvent.BKSP;
-            udpWrapper.sendData(data.getBytes());
-            j++;
-        }
-
-        if(i != s.length()) {
-//            if (i == 0)
-//                i = 1;
-            String diff = s.substring(i);
-
-            char letter = diff.charAt(0);
-            if (diff.length() == 1 && isLetterOrDigit(letter)) {
-                String data;
-                char capLetter = letter;
-                if ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z')) {
-                    capLetter = Character.toUpperCase(letter);
-                }
-                if(letter >= 'A' && letter <= 'Z') {
-                    data = System.currentTimeMillis() + "," + PointerUtils.KEY_PRESSED + "," + KeyboardEvent.SHIFT;
-                    udpWrapper.sendData(data.getBytes());
-                }
-                data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + ","  + (int)capLetter;
-               udpWrapper.sendData(data.getBytes());
-                if(letter >= 'A' && letter <= 'Z') {
-                    data = System.currentTimeMillis() + "," + PointerUtils.KEY_RELEASED + "," + KeyboardEvent.SHIFT;
-                    udpWrapper.sendData(data.getBytes());
-                }
-            } else {
-                String comps[] = diff.split(" ");
-                String data;
-                for (int a = 0; a < comps.length; a++) {
-                    if (comps.length > 1 && a < comps.length - 1) {
-                        data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.SPACE;
-                        udpWrapper.sendData(data.getBytes());
-                    }
-                    data = System.currentTimeMillis() + "," + PointerUtils.TEXT_INPUT + "," + comps[a];
-                    if (!comps[a].equals("")) {
-                        udpWrapper.sendData(data.getBytes());
-                    }
-                }
-
-                if (s.split(" ").length > 5) {
-                    addDummy();
-                    return;
-                }
-
-                if (diff.length() > 0 && diff.charAt(diff.length() - 1) == ' ') {
-                    data = System.currentTimeMillis() + "," + PointerUtils.PERFORM_KEY_ACTION + "," + KeyboardEvent.SPACE;
-                    udpWrapper.sendData(data.getBytes());
-                    addDummy();
-                    return;
-                }
-            }
-        } else {
-            if(s.length() == 0) {
-                addDummy();
-            }
-        }
-        prevLength = s.length();
-        prevStr = s;
-    }
-
-    private boolean isLetterOrDigit(char letter) {
-        if(letter >= '0' && letter <= '9')
-            return true;
-        if(letter >= 'A' && letter <= 'Z')
-            return true;
-        if(letter >= 'a' && letter <= 'z')
-            return true;
-        return false;
     }
 }

@@ -2,10 +2,11 @@ package com.example.mouse.KeyUtils;
 
 import android.content.Context;
 
+import com.example.mouse.ApplicationContainer;
+import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
 import com.example.mouse.MainActivity;
 import com.example.mouse.PointerUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,15 +40,21 @@ public class KeyboardEvent {
     public static final int ALT = 131;
     public static final int CTRL = 132;
     public static final int FN = 133;
-    public static final int CAPS = 134;
 
-    public static List typeText(String s, String t, UDPWrapper udpWrapper, MainActivity activity) {
+
+    private static int MAX_LENGTH = 10;
+
+    public static List typeText(String s, String t, NetworkManager networkManager, MainActivity activity) {
         List list = new ArrayList();
 
+        //if the user just presses backspace
         if(s.length() == 0) {
+            String data = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.BKSP);
+            networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
             activity.addDummy();
         }
 
+        //find the point of difference
         int minLen = Math.min(s.length(), t.length());
         int i, j;
         for(i = 0, j = 0; i < minLen; i++, j++) {
@@ -56,34 +63,58 @@ public class KeyboardEvent {
             }
         }
 
+        //delete unmatching text from previous string
         if(j < t.length() ) {
             String data = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.BKSP, t.length() - j);
-            udpWrapper.sendData(data.getBytes());
+            networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
             list.add(t.length() - j + " backspaces");
         }
 
         String diff = s.substring(i);
-        String data = CommandUtil.getTextInputCommand(diff);
-        udpWrapper.sendData(data.getBytes());
+
+        //send new string from diff
+        sendData(diff, networkManager, activity);
 
         activity.setPrevStr(s);
 
         list.add(diff);
 
         String logData = System.currentTimeMillis() + "," + PointerUtils.LOG + "," + LogUtil.PREV_CUR_STR  + "," + "\"" + s + "\",\"" + t + "\",\"" + list.toString() + "\"";
-        udpWrapper.sendData(logData.getBytes());
+        networkManager.sendData(logData.getBytes(), NetworkManager.UDP_OPTION);
 
         return list;
     }
 
-    public static boolean isLetterOrDigit(char letter) {
-        if(letter >= '0' && letter <= '9')
-            return true;
-        if(letter >= 'A' && letter <= 'Z')
-            return true;
-        if(letter >= 'a' && letter <= 'z')
-            return true;
-        return false;
+    public static void sendData(String data, NetworkManager networkManager, MainActivity activity) {
+        String dataItem;
+
+        if(data.length() == 0)
+            return;
+
+        //splits into individual word tokens
+        String components[] = data.split(" ");
+
+        for (int i = 0; i < components.length; i++) {
+            String str = components[i];
+            if (!str.equals("")) {
+                dataItem = CommandUtil.getTextInputCommand(str);
+                networkManager.sendData(dataItem.getBytes(), NetworkManager.UDP_OPTION);
+            }
+
+            if (i != components.length - 1) {
+                dataItem = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.SPACE);
+                networkManager.sendData(dataItem.getBytes(), NetworkManager.UDP_OPTION);
+            }
+        }
+
+        if (data.length() > 0 && data.charAt(data.length() - 1) == ' ') {
+            dataItem = CommandUtil.getPerformKeyActionCommand(KeyboardEvent.SPACE);
+            networkManager.sendData(dataItem.getBytes(), NetworkManager.UDP_OPTION);
+        }
+
+        if(components.length > MAX_LENGTH) {
+            activity.addDummy();
+        }
     }
 
 }

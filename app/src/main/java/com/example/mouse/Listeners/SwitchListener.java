@@ -2,17 +2,21 @@ package com.example.mouse.Listeners;
 
 import android.widget.CompoundButton;
 
+import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
+import com.example.mouse.MainActivity;
 import com.example.mouse.PointerUtils;
 
 public class SwitchListener implements CompoundButton.OnCheckedChangeListener {
 
-    private UDPWrapper mUDPWrapper;
+    private NetworkManager networkManager;
     private int mask;
+    private MainActivity activity;
 
-    public SwitchListener(UDPWrapper udpWrapper, int id) {
-        mUDPWrapper = udpWrapper;
+    public SwitchListener(NetworkManager nManager, int id, MainActivity activity) {
+        networkManager = nManager;
         mask = id;
+        this.activity = activity;
     }
 
     @Override
@@ -23,6 +27,7 @@ public class SwitchListener implements CompoundButton.OnCheckedChangeListener {
         } else {
             data = System.currentTimeMillis() + "," + PointerUtils.KEY_RELEASED + "," + mask;
         }
-        mUDPWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
+        activity.addDummy();
     }
 }

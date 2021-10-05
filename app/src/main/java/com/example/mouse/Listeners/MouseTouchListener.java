@@ -1,33 +1,33 @@
 package com.example.mouse.Listeners;
 
 import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.mouse.ConnectionUtil.NetworkManager;
-import com.example.mouse.ConnectionUtil.UDPDataReceivedListener;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
+import com.example.mouse.MainActivity;
 import com.example.mouse.PointerUtils;
 
 public class MouseTouchListener implements View.OnTouchListener {
 
     private VelocityTracker velocityTracker;
-    UDPWrapper mUDPWrapper;
+    NetworkManager networkManager;
     private boolean isDragEvent;
     private boolean isRightClickEvent;
     private boolean isCursorMoved;
 
     private long lastDownEvent;
     private boolean isSecondPointerDown;
+    private MainActivity activity;
 
-    public MouseTouchListener(UDPWrapper udpWrapper) {
+    public MouseTouchListener(NetworkManager nManager, MainActivity activity) {
         velocityTracker = null;
 
         lastDownEvent = 0;
         isDragEvent = false;
-        mUDPWrapper = udpWrapper;
+        networkManager = nManager;
+        this.activity = activity;
 
     }
 
@@ -72,22 +72,22 @@ public class MouseTouchListener implements View.OnTouchListener {
 
     private void sendRightClickPacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.MOUSE_RIGHT_CLICK;
-        mUDPWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     private void sendReleasePacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_RELEASE;
-        mUDPWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     private void sendPressPacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.LEFT_BUTTON_PRESS;
-        mUDPWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     public void sendClickPacket() {
         String data = System.currentTimeMillis() + "," + PointerUtils.MOUSE_CLICK;
-        mUDPWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     private void sendVelocityPacket(float xVelocity, float yVelocity) {
@@ -99,7 +99,7 @@ public class MouseTouchListener implements View.OnTouchListener {
             data = timestamp + "," + PointerUtils.MOUSE_MOVE + "," + xVelocity + "," + yVelocity + "," + scale;
         else
             data = timestamp + "," + PointerUtils.MOUSE_SCROLL + "," + xVelocity + "," + yVelocity + "," + PointerUtils.SCROLL_TYPE;
-        mUDPWrapper.sendData(data.getBytes());
+        networkManager.sendData(data.getBytes(), NetworkManager.UDP_OPTION);
     }
 
     @Override
@@ -132,6 +132,9 @@ public class MouseTouchListener implements View.OnTouchListener {
                 break;
 
         }
+
+        activity.addDummy();
+
         return true;
     }
 }
