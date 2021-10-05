@@ -40,12 +40,14 @@ public class UDPWrapper extends NetworkManager{
                     if (data == null || socket == null) {
                         continue;
                     }
-
+                    Log.d(LOG_CLASS, "UDPWrapper : Dispatching data. " + new String(data));
                     try {
                         DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(IP_ADDRESS), PORT_NUMBER);
                         socket.send(packet);
+                        Log.d(LOG_CLASS, "UDPWrapper : Dispatched Successfully.");
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Log.d(LOG_CLASS, "UDPWrapper : Dispatch failed");
                     }
                 }
             }
@@ -65,6 +67,7 @@ public class UDPWrapper extends NetworkManager{
     }
 
     public void sendData(byte[] data) {
+        Log.d(LOG_CLASS, "sendData : Adding to queue : \n\t" + new String(data));
         queue.add(data);
     }
 

@@ -42,7 +42,7 @@ public class KeyboardEvent {
     public static final int FN = 133;
 
 
-    private static int MAX_LENGTH = 25;
+    private static int MAX_LENGTH = 10;
 
     public static List typeText(String s, String t, NetworkManager networkManager, MainActivity activity) {
         List list = new ArrayList();

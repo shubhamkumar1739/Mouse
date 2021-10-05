@@ -29,6 +29,7 @@ public class NetworkManager {
 
     public static final int TCP_OPTION = 0;
     public static final int UDP_OPTION = 1;
+    private static final String LOG_CLASS = "NetworkManager" ;
 
     DataReceivedListener mListener;
 
@@ -123,19 +124,18 @@ public class NetworkManager {
                             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, BROADCASTER_PORT);
                             try {
                                 broadcasterSocket.send(packet);
-                                //Log.d(LOG_CLASS, "sent broadcast to : "+ address.getHostAddress());
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
                     }
+                    Log.d(LOG_CLASS, "initBroadCast: Thread stopped. Thread ID : " + broadcasterThread.getId());
                     broadcasterThread = null;
                     broadcasterSocket.close();
                 }
             };
             broadcasterThread.start();
-            //Log.d(LOG_CLASS, "Broadcaster setup successful");
-            //Toast.makeText(mContext, "Broadcaster setup successful", Toast.LENGTH_SHORT).show();
+            Log.d(LOG_CLASS, "initBroadCast: Thread started. Thread ID : " + broadcasterThread.getId());
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -145,7 +145,7 @@ public class NetworkManager {
         Thread t = new Thread() {
             public void run() {
                 IP_ADDRESS = ip;
-                tcpWrapper.initSender();
+                //tcpWrapper.initSender();
                 udpWrapper.initSender();
             }
         };

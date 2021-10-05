@@ -1,5 +1,6 @@
 package com.example.mouse;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.util.Log;
 import com.example.mouse.ConnectionUtil.DataReceivedListener;
 import com.example.mouse.ConnectionUtil.NetworkManager;
 import com.example.mouse.ConnectionUtil.UDPWrapper;
+import com.example.mouse.UpdateUtil.UpdateUtil;
 import com.example.mouse.WifiPeerUtil.Peer;
 import com.example.mouse.WifiPeerUtil.PeerClickedListener;
 import com.example.mouse.WifiPeerUtil.WifiPeerAdapter;
@@ -33,6 +35,7 @@ public class WifiActivity extends AppCompatActivity {
     private DataReceivedListener mListener;
 
     private String LOG_ACTIVITY = "WifiActivity";
+    private int UPDATE_CHECK_REQUEST_CODE = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,7 @@ public class WifiActivity extends AppCompatActivity {
         setContentView(R.layout.activity_wifi);
 
         initRecyclerView();
+        UpdateUtil.checkUpdate(this, UPDATE_CHECK_REQUEST_CODE);
 
 
         mListener = new DataReceivedListener() {
@@ -123,5 +127,15 @@ public class WifiActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
         networkManager.stopReceiver();
         networkManager.stopBroadCast();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_CHECK_REQUEST_CODE) {
+            if (resultCode == RESULT_CANCELED) {
+                //DO SOMETHING
+            }
+        }
     }
 }
